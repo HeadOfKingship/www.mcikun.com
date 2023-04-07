@@ -1,39 +1,110 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>404</title>
-<style>
-        body {
-            background-color: rgb(255, 255, 255);
-            font-size: 14px;
+    <meta charset="UTF-8">
+    <title>404 Not Found</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Roboto:300,400');
+        * {
+            box-sizing: border-box;
         }
 
-        h3 {
-            font-size: 60px;
-            color: rgb(0, 0, 0);
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f1f1f1;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
-            padding-top: 30px;
-            font-weight: normal;
+        }
+
+        h1 {
+            font-size: 10rem;
+            margin: 0;
+            color: #333;
+            animation: shake 0.5s ease-in-out infinite alternate;
+        }
+
+        p {
+            font-size: 2rem;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #333;
+            color: #fff;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: #fff;
+            color: #333;
+        }
+
+        @keyframes shake {
+            from {
+                transform: translateX(-10px);
+            }
+            to {
+                transform: translateX(10px);
+            }
+        }
+
+        @media only screen and (max-width: 768px) {
+            h1 {
+                font-size: 6rem;
+            }
+
+            p {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
 <body>
-<h3>寄,404</h3>
-<li>
-<b><a href="https://www.mcwqzs.com/website_problem_feedback/" target="_black">反馈链接(中文)</a></b>
-</li>
-<li>
-<b><a href="https://www.wqzs.vip/website_problem_feedback/" target="_black">Website Problem Feedback(EN)</a></b>
-</li>
-<h5>广告 AD:</h5>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8023731659251282" crossorigin="anonymous"></script>
+    <div class="container">
+        <h1>404</h1>
+        <p>We're sorry, the page you requested could not be found.</p>
+        <a href="/" class="btn">Go Back Home</a>
+    </div>
 
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8023731659251282" data-ad-slot="1900995173" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
+    <script>
+        const text = document.querySelector("h1");
+        const btn = document.querySelector(".btn");
+
+        text.innerHTML = text.textContent.replace(/\S/g, "<span>$&</span>");
+
+        const letters = document.querySelectorAll("span");
+
+        for (let i = 0; i < letters.length; i++) {
+            letters[i].style.animationDelay = `${i * 0.1}s`;
+        }
+
+        btn.addEventListener("mouseover", () => {
+            text.style.animationPlayState = "paused";
+        });
+
+        btn.addEventListener("mouseout", () => {
+            text.style.animationPlayState = "running";
+        });
     </script>
-<script>(function(){var js = "window['__CF$cv$params']={r:'7b3b276abf75f6a9',m:'6gbowOx.Ix0tRncVPRsExmjSdUuH.kf_ysEn.SqKciU-1680795886-0-AenEbhFUYTLKcCcN3tTE0Z3telomx8eBb7d7dhGjdWVFK9IQCljuSkR3OvyKKWm2EP/dcKFJk5cCUA4rpTZqrB+yVGLvy7QyNAivVDnduJZGAfhoxgPw8KyLkAfJ8X6Cwg==',s:[0x45947e7a93,0x5e077d35b9],u:'/cdn-cgi/challenge-platform/h/b'};var now=Date.now()/1000,offset=14400,ts=''+(Math.floor(now)-Math.floor(now%offset)),_cpo=document.createElement('script');_cpo.nonce='',_cpo.src='/cdn-cgi/challenge-platform/h/b/scripts/alpha/invisible.js?ts='+ts,document.getElementsByTagName('head')[0].appendChild(_cpo);";var _0xh = document.createElement('iframe');_0xh.height = 1;_0xh.width = 1;_0xh.style.position = 'absolute';_0xh.style.top = 0;_0xh.style.left = 0;_0xh.style.border = 'none';_0xh.style.visibility = 'hidden';document.body.appendChild(_0xh);function handler() {var _0xi = _0xh.contentDocument || _0xh.contentWindow.document;if (_0xi) {var _0xj = _0xi.createElement('script');_0xj.nonce = '';_0xj.innerHTML = js;_0xi.getElementsByTagName('head')[0].appendChild(_0xj);}}if (document.readyState !== 'loading') {handler();} else if (window.addEventListener) {document.addEventListener('DOMContentLoaded', handler);} else {var prev = document.onreadystatechange || function () {};document.onreadystatechange = function (e) {prev(e);if (document.readyState !== 'loading') {document.onreadystatechange = prev;handler();}};}})();</script></body>
+</body>
 </html>
