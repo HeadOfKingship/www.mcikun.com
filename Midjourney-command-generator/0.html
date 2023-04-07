@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midjourney 命令生成器</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <h1>Midjourney 命令生成器</h1>
+    <h3>仅需要填入需要的选项即可，持续更新中...........</h3>
+    <form id="command-generator">
+        <label for="text-prompt">文本提示：(英文关键词用,隔开)</label>
+        <input type="text" id="text-prompt" size="50" name="text-prompt">
+        <!-- 在表单中添加一个翻译按钮 -->
+        <button type="button" id="translate-button">翻译</button>
+        <!-- 添加一个隐藏的输入框以存储翻译结果 -->
+        <input type="hidden" id="translated-text">
+        <br>
+        <label for="image-url">图像 URL：</label>
+        <input type="text" id="image-url" size="50" name="image-url">
+        <br>
+        <label for="width">宽度（--w）：</label>
+        <input type="number" id="width" name="width" step="64" placeholder="必须是64的倍数">
+        <br>
+        <label for="height">高度（--h）：</label>
+        <input type="number" id="height" name="height" step="64" placeholder="必须是64的倍数">
+        <br>
+        <label for="quality">图片质量（--q 范围:0-2）：</label>
+        <input type="number" id="quality" name="quality" min="0" max="2">
+        <br>
+        <label for="style">美术风格应用（--s 范围:0-1000）：</label>
+        <input type="number" id="style" name="style" min="0" max="1000">
+        <br>
+        <label for="aspect-ratio">图像宽高比（--ar）：</label>
+        <input type="text" id="aspect-ratio" name="aspect-ratio" placeholder="例如：3:2">
+        <br>
+        <label for="image-weight">图像权重（--iw）：</label>
+        <input type="number" id="image-weight" name="image-weight" step="0.1" placeholder="例如：0.5">
+        <br>
+        <label for="seed">随机种子（--seed）：</label>
+        <input type="number" id="seed" size="50" min="1" placeholder="⁢保⁢持⁢更⁢稳⁢定⁢/⁢可⁢重⁢复⁢性⁢">
+        <br>
+        <label for="negative-weight">负面加权（--no）：</label>
+        <input type="text" id="negative-weight" size="50" placeholder="例如:（–no plants 会尝试移除植物）">
+        <br>
+        <label for="stop">停止生成百分比（--stop 单位%）：</label>
+        <input type="number" id="stop" min="10" max="100">
+        <br>
+        <label for="version">应用程序版本（--v 范围:1-5）：</label>
+        <input type="number" id="version" name="version" min="1" max="5">
+        <br>
+        <br>
+        <input type="checkbox" id="niji" name="niji">
+        <label for="niji">专注动漫风格（--niji）</label>
+        <br>
+        <input type="checkbox" id="tile" name="tile">
+        <label for="tile">重复拼贴（--tile）</label>
+        <br>
+        <input type="checkbox" id="uplight" name="uplight">
+        <label for="uplight">使用“⁢轻⁢”⁢升⁢级⁢器⁢（--uplight）<br>(使⁢用⁢“⁢轻⁢”⁢升⁢级⁢器⁢进⁢行⁢后⁢续⁢升⁢级⁢，⁢也⁢就⁢是⁢对⁢图⁢像⁢进⁢行⁢微⁢调⁢，⁢结⁢果⁢更⁢接⁢近⁢原⁢始⁢图⁢像⁢)</label>
+        <br>
+        <input type="checkbox" id="sameseed" name="sameseed">
+        <label for="sameseed">设置相同的种子（--sameseed）<br>(在⁢生⁢成⁢的⁢所⁢有⁢图⁢像⁢上⁢设⁢置⁢相⁢同⁢的⁢种⁢子⁢)</label>
+        <br>
+        <input type="checkbox" id="hd" name="hd">
+        <label for="hd">使用高清模式(-hd)<br>(使⁢用⁢不⁢同⁢的⁢算⁢法⁢，⁢该⁢算⁢法⁢可⁢能⁢更⁢适⁢合⁢较⁢大⁢的⁢图⁢像⁢，⁢但⁢构⁢图⁢的⁢一⁢致⁢性⁢较⁢差⁢，⁢适⁢合⁢抽⁢象⁢和⁢风⁢景⁢提⁢示⁢)</label>
+        <br>
+        <input type="checkbox" id="fast" name="fast">
+        <label for="fast">使用快速模式(-fast)<br>(更⁢快⁢的⁢渲⁢染⁢速⁢度⁢，⁢但⁢图⁢像⁢的⁢一⁢致⁢性⁢会⁢更⁢少)</label>
+        <br>
+        <br>
+        <button type="submit">生成命令</button>
+    </form>
+    <label for="generated-command">生成的命令：</label>
+    <textarea id="generated-command" readonly></textarea>
+</body>
+</html>
+<script>
+//在JavaScript中创建一个函数来调用腾讯云翻译API：
+async function translateTextWithTencent(text) {
+    const endpoint = 'tmt.tencentcloudapi.com';
+    const region = 'ap-shanghai'; // 替换为您选择的区域
+    const action = 'TextTranslate';
+    const version = '2018-03-21';
+    const source = 'auto';
+    const target = 'en';
+    const secretId = 'id'; // 替换为您的腾讯云翻译SecretId
+    const secretKey = 'key'; // 替换为您的腾讯云翻译SecretKey
+
+    // 构建签名所需的参数
+    const timestamp = Math.floor(Date.now() / 1000);
+    const nonce = Math.floor(Math.random() * 100000);
+    const params = {
+        'Action': action,
+        'Version': version,
+        'Region': region,
+        'Timestamp': timestamp,
+        'Nonce': nonce,
+        'SecretId': secretId,
+        'SourceText': text,
+        'Source': source,
+        'Target': target
+    };
+
+    // 对参数进行排序
+    const sortedKeys = Object.keys(params).sort();
+    const sortedParams = sortedKeys.map(key => `${key}=${encodeURIComponent(params[key])}`).join('&');
+
+    // 构建签名字符串
+    const signString = `GET${endpoint}/?${sortedParams}`;
+
+    // 计算签名
+    const hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA1, secretKey);
+    hmac.update(signString);
+    const signature = encodeURIComponent(hmac.finalize().toString(CryptoJS.enc.Base64));
+
+    // 构建请求URL
+    const url = `https://${endpoint}/?${sortedParams}&Signature=${signature}`;
+
+    // 发起请求
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // 返回翻译结果
+    return data.Response?.TargetText || text;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const translateButton = document.getElementById('translate-button');
+    const translatedText = document.getElementById('translated-text');
+    const form = document.getElementById('command-generator');
+    const commandOutput = document.getElementById('generated-command');
+
+    //更新翻译按钮的事件监听器，以调用新的翻译函数：
+    translateButton.addEventListener('click', async function() {
+        const textPrompt = document.getElementById('text-prompt').value;
+
+        if (textPrompt) {
+        command += ' ' + textPrompt;
+    }
+
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const textPrompt = translatedText.value || document.getElementById('text-prompt').value;
+        const imageUrl = document.getElementById('image-url').value;
+        const width = document.getElementById('width').value;
+        const height = document.getElementById('height').value;
+        const imageWeight = document.getElementById('image-weight').value;
+        const seed = document.getElementById('seed').value;
+        const aspectRatio = document.getElementById('aspect-ratio').value;
+        const hd = document.getElementById('hd').checked;
+        const fast = document.getElementById('fast').checked;
+        const negativeWeight = document.getElementById('negative-weight').value;
+        const stop = document.getElementById('stop').value;
+        const uplight = document.getElementById('uplight').checked;
+        const sameseed = document.getElementById('sameseed').checked;
+        const quality = document.getElementById('quality').value;
+        const style = document.getElementById('style').value;
+        const version = document.getElementById('version').value;
+        const niji = document.getElementById('niji').checked;
+        const tile = document.getElementById('tile').checked;
+
+        let command = '/imagine prompt:';
+        command +=imageUrl;
+
+        if (textPrompt) {
+            command += ' ' + textPrompt;
+        }
+
+        if (negativeWeight) {
+            command += ' --no ' + negativeWeight;
+        }
+
+        if (seed) {
+            command += ' --seed ' + seed;
+        }
+
+        if (hd) {
+            command += ' --hd';
+        }
+
+        if (fast) {
+            command += ' --fast';
+        }
+
+        if (imageWeight) {
+            command += ' --iw ' + imageWeight;
+        }
+
+        if (aspectRatio) {
+            command += ' --ar ' + aspectRatio;
+        }
+
+        if (width) {
+            command += ' --w ' + width;
+        }
+
+        if (height) {
+            command += ' --h ' + height;
+        }
+
+        if (stop) {
+            command += ' --stop ' + stop;
+        }
+
+        if (uplight) {
+            command += ' --uplight';
+        }
+
+        if (sameseed) {
+            command += ' --sameseed';
+        }
+
+        if (quality) {
+            command += ' --q ' + quality;
+        }
+
+        if (style) {
+            command += ' --s ' + style;
+        }
+
+        if (version) {
+            command += ' --v ' + version;
+        }
+
+        if (niji) {
+            command += ' --niji';
+        }
+
+        if (tile) {
+            command += ' --tile';
+        }
+
+        commandOutput.value = command;
+    });
+
+});
+</script>
